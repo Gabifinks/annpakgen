@@ -16,6 +16,7 @@ class GeneExtractionStrategy(ExtractionStrategy):
         else:
             print("Gene not found")
             return []
+        
     def find_coordinates(self, genbank_lines: List[str], gene: str = "rsmI") -> List[str]:
         coordinates = []
         for i, line in enumerate(genbank_lines):
@@ -51,5 +52,56 @@ class GeneExtractionStrategy(ExtractionStrategy):
         return sequence_box
                               
     def extract_sequence(self, genbank_lines: List[str], coordinates: str) -> str:
-        """Tenho que extrair a sequência com base nas coordenadas fornecidas anteriormente"""
+        """Extrai sequência do genoma e escreve em arquivo de texto."""
+        def revcomp(seq: str) -> str:
+            tr = str.maketrans("ACGTacgt", "TGCAtgca")
+            return seq.translate(tr)[::-1]
+
+        # obter genoma do bloco ORIGIN
+        sequence_lines = self.find_genome(genbank_lines)
+        genome = "".join(re.sub(r'[^ACGTacgt]', '', ln) for ln in sequence_lines).upper()
+
+        # gene alvo
+        gene = "rsmI"
+
+        # coordenadas
+        coords_list = self.find_coordinates(genbank_lines, gene)
+
+        # detectar complement
+        is_complement = False
+        for i, line in enumerate(genbank_lines):
+            if line.strip().startswith(f'/gene="{gene}"'):
+                j = i - 1
+                while j >= 0:
+                    prev = genbank_lines[j].strip()
+                    if not prev or prev.startswith("/"):
+                        j -= 1
+                        continue
+                    if 'complement' in prev.lower():
+                        is_complement = True
+                    break
+                break
+
         
+        parts = []
+        for coord in coords_list:
+            m = re.search(r'(\d+)\.\.(\d+)', coord)
+            if m:
+                start = int(m.group(1)) - 1
+                end = int(m.group(2))
+                parts.append(genome[start:end])
+
+        seq = "".join(parts)
+        if is_complement:
+            seq = revcomp(seq)
+
+        # Output file
+        out_file = f"{gene}_sequence.txt"
+        with open(out_file, "w") as fh:
+            fh.write(f">{gene}\n")
+            for i in range(0, len(seq), 60):
+                fh.write(seq[i:i+60] + "\n")
+
+        return out_file
+
+
