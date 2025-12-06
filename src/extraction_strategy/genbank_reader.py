@@ -14,5 +14,5 @@ class GenBankReader:
     def set_strategy(self, strategy: ExtractionStrategy):
         self.strategy = strategy
 
-    def parse_extract(self, genbank_lines: List[str]):
-        self.strategy.extract_seq(genbank_lines=genbank_lines)
+    def parse_extract(self, genbank_lines: List[str], gene: str):
+        self.strategy.extract_seq(genbank_lines=genbank_lines, gene=gene)

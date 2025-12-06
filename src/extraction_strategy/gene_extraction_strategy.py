@@ -10,15 +10,15 @@ from .extraction_strategy_int import ExtractionStrategy
 
 
 class GeneExtractionStrategy(ExtractionStrategy):
-    def find_gene(self, genbank_lines: List[str]) -> List[str]:
-        gene = "rsmI"
+    def find_gene(self, genbank_lines: List[str], gene: str) -> List[str]:
+        # gene = "rsmI"
         if gene in "".join(genbank_lines):
             return [gene]
         else:
             print("Gene not found")
             return []
         
-    def find_coordinates(self, genbank_lines: List[str], gene: str = "rsmI") -> List[str]:
+    def find_coordinates(self, genbank_lines: List[str], gene: str) -> List[str]:
         """Encontra as coordenadas do gene especificado."""
         coordinates = []
         for i, line in enumerate(genbank_lines):
@@ -48,12 +48,12 @@ class GeneExtractionStrategy(ExtractionStrategy):
         
         return []
     
-    def extract_seq(self, genbank_lines: List[str]) -> str:
+    def extract_seq(self, genbank_lines: List[str], gene: str) -> str:
         """
         Extrai a sequência do gene 'rsmI' e salva em arquivo FASTA.
         """
         # 1. Encontrar o gene
-        genes = self.find_gene(genbank_lines)
+        genes = self.find_gene(genbank_lines, gene)
         if not genes:
             return ""
         gene_name = genes[0]
