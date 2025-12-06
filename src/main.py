@@ -23,11 +23,8 @@ if __name__=='__main__':
     args = parser.parse_args()
     genbank_lines = read_genbank_file(file_path=Path(args.genbank_file))
     gene = args.gene
-    method = args.feature
+    feature = args.feature
 
-    strategy = GeneExtractionStrategy() if method == "gene" else ProteinExtractionStrategy()
+    strategy = GeneExtractionStrategy() if feature == "gene" else ProteinExtractionStrategy()
     gen_reader = GenBankReader(strategy=strategy)
     result = gen_reader.parse_extract(genbank_lines=genbank_lines, gene=gene)
-    #chama o modulo so caso queira outra estrategia
-    #gen_reader.set_strategy(ProteinExtractionStrategy())
-    #proteins = gen_reader.parse(genbank_lines)
